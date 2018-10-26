@@ -9,14 +9,12 @@ TARGET = $(BIN_DIR)/wfg
 SRC_CPP = main.cpp
 OBJ_CPP = $(SRC_CPP:.cpp=.o)
 
-CLASSES_CPP = Command Expression
-# CLASSES_SOURCES = $(addsuffix .cpp,$(CLASSES_CPP))
-# CLASSES_HEADERS = $(addsuffix .h,$(CLASSES_CPP))
+CLASSES_CPP = ArgParser Command Expression
 CLASSES_OBJECTS = $(addsuffix .o,$(CLASSES_CPP))
 
 # Program version
 GIT_REVISION = $(shell git rev-parse HEAD)
-PROGRAM_VERSION = v0.0.1 [$(GIT_REVISION)]
+PROGRAM_VERSION = wfg v0.0.1 [$(GIT_REVISION)]
 PROGRAM_VERSION_MACRO = PROGRAM_VERSION="$(PROGRAM_VERSION)"
 
 # Compiler & linker flags
@@ -36,7 +34,7 @@ all: program
 program: $(TARGET)
 
 $(TARGET): $(addprefix $(OBJ_DIR)/,$(OBJ_CPP)) $(addprefix $(OBJ_DIR)/,$(CLASSES_OBJECTS))
-	@echo Building program $(PROGRAM_VERSION_MACRO)
+	@echo Building $(PROGRAM_VERSION)
 	g++ $(LFLAGS) -o $(TARGET) $^
 
 define createclassrule
