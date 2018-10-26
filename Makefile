@@ -68,3 +68,20 @@ show:
 	@echo CFLAGS $(CFLAGS)
 	@echo PROGRAM_VERSION $(PROGRAM_VERSION)
 	@echo Directories $(SRC_DIR) $(INC_DIR) $(OBJ_DIR) $(BIN_DIR)
+
+.PHONY: class
+class:
+ifeq ($(name),)
+$(error Use: name=MyClass make class)
+endif
+	@echo "#pragma once" >> $(INC_DIR)/$(name).h
+	@echo >> $(INC_DIR)/$(name).h
+	@echo "class $(name) {" >> $(INC_DIR)/$(name).h
+	@echo "public:" >> $(INC_DIR)/$(name).h
+	@echo "    $(name)();" >> $(INC_DIR)/$(name).h
+	@echo "}" >> $(INC_DIR)/$(name).h
+	@echo "#include \"$(name).h\"" >> $(SRC_DIR)/$(name).cpp
+	@echo >> $(SRC_DIR)/$(name).cpp
+	@echo "$(name)::$(name)() {" >> $(SRC_DIR)/$(name).cpp
+	@echo "    // TODO" >> $(SRC_DIR)/$(name).cpp
+	@echo "}" >> $(SRC_DIR)/$(name).cpp
