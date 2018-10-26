@@ -26,6 +26,9 @@ LFLAGS =
 vpath %.cpp $(SRC_DIR)
 vpath %.h $(INC_DIR)
 
+$(shell mkdir -p $(OBJ_DIR))
+$(shell mkdir -p $(BIN_DIR))
+
 .PHONY: all
 all: program
 
@@ -33,35 +36,32 @@ all: program
 program: $(TARGET)
 
 $(TARGET): $(addprefix $(OBJ_DIR)/,$(OBJ_CPP)) $(addprefix $(OBJ_DIR)/,$(CLASSES_OBJECTS))
-	@mkdir -p $(BIN_DIR)
-	@mkdir -p $(OBJ_DIR)
 	@echo Building program $(PROGRAM_VERSION_MACRO)
-	g++ $(LFLAGS) -o $(TARGET) $(OBJ_CPP) $(CLASSES_OBJECTS)
+	g++ $(LFLAGS) -o $(TARGET) $^
 
 define createclassrule
 $(OBJ_DIR)/$(addsuffix .o,$(1)): $(SRC_DIR)/$(addsuffix .cpp,$(1)) $(INC_DIR)/$(addsuffix .h,$(1))
 	g++ $$(CFLAGS) -c $$< -o $$@
 endef
 
-$(foreach classfile,$(CLASSES_CPP),$(eval $(call createclassrule, $(classfile))))
+$(foreach classfile,$(CLASSES_CPP),$(eval $(call createclassrule,$(classfile))))
 
 define createcpprule
 $(OBJ_DIR)/$(1): $(SRC_DIR)/$(1:.o=.cpp)
 	g++ $$(CFLAGS) -c $$< -o $$@
 endef
 
-$(foreach objfile,$(OBJ_CPP),$(eval $(call createcpprule, $(objfile))))
-
-# main.o: main.cpp
-# 	@echo LECHO
-# 	g++ $(CFLAGS) -c $< -o $@
-
-# %.o: %.cpp %.h
-# 	g++ $(CFLAGS) -c $< -o $@
+$(foreach objfile,$(OBJ_CPP),$(eval $(call createcpprule,$(objfile))))
 
 .PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR)
+	mkdir $(OBJ_DIR)
+
+.PHONY: fullclean
+fullclean: clean
+	rm -rf $(BIN_DIR)
+	mkdir $(BIN_DIR)
 
 .PHONY: show
 show:
