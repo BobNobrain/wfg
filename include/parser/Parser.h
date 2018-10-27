@@ -22,6 +22,7 @@ namespace parser {
         void flushBuffer();
         void handleOperators(const std::string& buffer_content);
         void handleNumber(const std::string& buffer_content);
+        void handleIdentifier(const std::string& buffer_content);
     public:
         Parser();
 

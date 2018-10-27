@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ArgParser.h"
+#include "FileLoader.h"
 #include "help.cpp"
 
 int main(int argc, char const *argv[])
@@ -21,5 +22,6 @@ int main(int argc, char const *argv[])
     }
 
     // TODO
-    return 0;
+    wfg::FileLoader loader;
+    return loader.start("../example.wfg");
 }

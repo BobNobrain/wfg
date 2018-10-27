@@ -7,19 +7,6 @@
 
 namespace wfg {
 namespace parser {
-    bool is_keyword(const std::string& token) {
-        if (token == "read") return true;
-        if (token == "output") return true;
-        if (token == "if") return true;
-        if (token == "then") return true;
-        if (token == "else") return true;
-        if (token == "while") return true;
-        if (token == "do") return true;
-        if (token == "not") return true;
-        return false;
-    }
-
-
     Parser::Parser() {}
 
     void Parser::flushBuffer() {
@@ -27,20 +14,7 @@ namespace parser {
         buffer.str(std::string());
         switch (state) {
             case Parser::STATE_IDENTIFIER:
-                if (buffer_content == "true") {
-                    tokens.push_back(BoolToken(true));
-                    break;
-                }
-                if (buffer_content == "false") {
-                    tokens.push_back(BoolToken(false));
-                    break;
-                }
-                if (is_keyword(buffer_content)) {
-                    tokens.push_back(KeywordToken(buffer_content));
-                    break;
-                }
-
-                tokens.push_back(IdentifierToken(buffer_content));
+                handleIdentifier(buffer_content);
                 break;
 
             case Parser::STATE_NUMBER:
@@ -73,6 +47,23 @@ namespace parser {
         // to split down buffer_content into several operators
         // TODO!
         tokens.push_back(token);
+    }
+
+    void Parser::handleIdentifier(const std::string& buffer_content) {
+        if (buffer_content == "true") {
+            tokens.push_back(BoolToken(true));
+            return;
+        }
+        if (buffer_content == "false") {
+            tokens.push_back(BoolToken(false));
+            return;
+        }
+        KeywordToken kw(buffer_content);
+        if (kw.type() != Token::TYPE_UNKNOWN) {
+            tokens.push_back(kw);
+            return;
+        }
+        tokens.push_back(IdentifierToken(buffer_content));
     }
 
     void Parser::tokenize(std::string fileContent) {

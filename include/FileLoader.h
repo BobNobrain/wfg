@@ -1,6 +1,12 @@
 #pragma once
+#include <string>
 
-class FileLoader {
-public:
-    FileLoader();
+namespace wfg {
+    class FileLoader {
+    public:
+        FileLoader();
+        ~FileLoader();
+
+        int start(const std::string& filename);
+    };
 };
