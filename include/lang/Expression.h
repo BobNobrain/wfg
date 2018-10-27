@@ -1,6 +1,6 @@
 #pragma once
-#include "Value.h"
-#include "State.h"
+#include "lang/Value.h"
+#include "interpreter/State.h"
 
 namespace wfg
 {

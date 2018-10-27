@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Value.h"
+#include "lang/Value.h"
 
 namespace wfg {
     class State {

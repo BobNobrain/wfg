@@ -3,7 +3,7 @@
 #include <vector>
 #include <sstream>
 #include "parser/Token.h"
-#include "Command.h"
+#include "lang/Command.h"
 
 namespace wfg {
 namespace parser {

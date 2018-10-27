@@ -3,18 +3,19 @@ SRC_DIR = $(PROJECT_ROOT)/src
 BIN_DIR = $(PROJECT_ROOT)/bin
 INC_DIR = $(PROJECT_ROOT)/include
 OBJ_DIR = $(PROJECT_ROOT)/obj
-CLASSES_SUBDIRS = exception parser
+CLASSES_SUBDIRS = exception interpreter lang parser
 
 TARGET = $(BIN_DIR)/wfg
 
 SRC_CPP = main.cpp
 OBJ_CPP = $(SRC_CPP:.cpp=.o)
 
-CLASSES_CPP = ArgParser \
-	Interpreter State Value \
-	Command Expression \
-	parser/Parser parser/Token \
-	exception/ParserException
+CLASSES_CPP = ArgParser FileLoader \
+	$(addprefix interpreter/,Interpreter State) \
+	$(addprefix lang/,Command Expression Value) \
+	$(addprefix parser/,Parser Token) \
+	$(addprefix exception/,ParserException)
+
 CLASSES_OBJECTS = $(addsuffix .o,$(CLASSES_CPP))
 
 # Program version
@@ -77,7 +78,7 @@ show:
 
 .PHONY: class
 class:
-	@if [[ "$(name)" == "" ]]; then echo "Use: name=MyClass make class"; exit 1; fi
+	@if [ "$(name)" == "" ]; then echo "Use: name=MyClass make class"; exit 1; fi
 	@echo "#pragma once" >> $(INC_DIR)/$(name).h
 	@echo >> $(INC_DIR)/$(name).h
 	@echo "class $(name) {" >> $(INC_DIR)/$(name).h

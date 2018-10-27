@@ -1,4 +1,4 @@
-#include "State.h"
+#include "interpreter/State.h"
 
 namespace wfg {
     State::~State() {
