@@ -9,7 +9,7 @@ TARGET = $(BIN_DIR)/wfg
 SRC_CPP = main.cpp
 OBJ_CPP = $(SRC_CPP:.cpp=.o)
 
-CLASSES_CPP = ArgParser Command Expression
+CLASSES_CPP = ArgParser Interpreter State Value Command Expression parser/Parser parser/Token
 CLASSES_OBJECTS = $(addsuffix .o,$(CLASSES_CPP))
 
 # Program version
