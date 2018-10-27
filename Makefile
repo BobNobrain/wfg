@@ -3,13 +3,18 @@ SRC_DIR = $(PROJECT_ROOT)/src
 BIN_DIR = $(PROJECT_ROOT)/bin
 INC_DIR = $(PROJECT_ROOT)/include
 OBJ_DIR = $(PROJECT_ROOT)/obj
+CLASSES_SUBDIRS = exception parser
 
 TARGET = $(BIN_DIR)/wfg
 
 SRC_CPP = main.cpp
 OBJ_CPP = $(SRC_CPP:.cpp=.o)
 
-CLASSES_CPP = ArgParser Interpreter State Value Command Expression parser/Parser parser/Token
+CLASSES_CPP = ArgParser \
+	Interpreter State Value \
+	Command Expression \
+	parser/Parser parser/Token \
+	exception/ParserException
 CLASSES_OBJECTS = $(addsuffix .o,$(CLASSES_CPP))
 
 # Program version
@@ -55,6 +60,7 @@ $(foreach objfile,$(OBJ_CPP),$(eval $(call createcpprule,$(objfile))))
 clean:
 	rm -rf $(OBJ_DIR)
 	mkdir $(OBJ_DIR)
+	mkdir $(addprefix $(OBJ_DIR)/,$(CLASSES_SUBDIRS))
 
 .PHONY: fullclean
 fullclean: clean
@@ -71,9 +77,7 @@ show:
 
 .PHONY: class
 class:
-ifeq ($(name),)
-$(error Use: name=MyClass make class)
-endif
+	@if [[ "$(name)" == "" ]]; then echo "Use: name=MyClass make class"; exit 1; fi
 	@echo "#pragma once" >> $(INC_DIR)/$(name).h
 	@echo >> $(INC_DIR)/$(name).h
 	@echo "class $(name) {" >> $(INC_DIR)/$(name).h

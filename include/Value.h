@@ -5,6 +5,7 @@ namespace wfg {
     class Value {
     public:
         Value();
+        virtual ~Value();
 
         virtual void* eval() = 0;
         virtual int type() = 0;

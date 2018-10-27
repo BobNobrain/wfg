@@ -2,4 +2,5 @@
 
 namespace wfg {
     Value::Value() {}
+    Value::~Value() {}
 };

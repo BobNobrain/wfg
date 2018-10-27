@@ -4,6 +4,10 @@ namespace wfg {
 namespace parser {
     Token::Token() {}
 
+    char Token::type() const {
+        return Token::TYPE_UNKNOWN;
+    }
+
     bool Token::isKeyword() {
         return type() & 0xA0;
     }
