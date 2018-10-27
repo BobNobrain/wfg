@@ -1,6 +1,7 @@
 #include "interpreter/State.h"
 
 namespace wfg {
+namespace interpreter {
     State::~State() {
         for (auto it = input.begin(); it != input.end(); ++it) {
             Value* v = *it;
@@ -30,4 +31,5 @@ namespace wfg {
     void State::write(Value* value) {
         output.push_back(value);
     }
+};
 };

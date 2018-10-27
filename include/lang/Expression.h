@@ -2,13 +2,14 @@
 #include "lang/Value.h"
 #include "interpreter/State.h"
 
-namespace wfg
-{
+namespace wfg {
+namespace lang {
     class Expression
     {
     public:
         Expression() {}
 
-        virtual Value* evaluate(State &state) = 0;
+        virtual Value* evaluate(interpreter::State &state) = 0;
     };
+};
 };

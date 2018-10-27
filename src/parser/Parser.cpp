@@ -162,5 +162,9 @@ namespace parser {
             }
         }
     }
+
+    std::vector<lang::Command*> Parser::ast() {
+        return std::vector<lang::Command*>();
+    }
 };
 };

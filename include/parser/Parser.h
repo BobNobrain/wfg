@@ -26,7 +26,7 @@ namespace parser {
         Parser();
 
         void tokenize(std::string fileContent);
-        std::vector<Command*> ast();
+        std::vector<lang::Command*> ast();
     };
 };
 };

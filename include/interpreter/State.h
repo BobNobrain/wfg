@@ -4,7 +4,10 @@
 #include <map>
 #include "lang/Value.h"
 
+using namespace wfg::lang;
+
 namespace wfg {
+namespace interpreter {
     class State {
     private:
         std::map<std::string, Value*> memory;
@@ -21,4 +24,5 @@ namespace wfg {
         Value* read();
         void write(Value* value);
     };
+};
 };

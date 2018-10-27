@@ -2,6 +2,7 @@
 #include <string>
 
 namespace wfg {
+namespace lang {
     class Value {
     public:
         Value();
@@ -16,4 +17,5 @@ namespace wfg {
         static const int TYPE_BOOL = 3;
         static const int TYPE_LIST = 4;
     };
+};
 };
