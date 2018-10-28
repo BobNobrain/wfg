@@ -9,9 +9,8 @@ namespace interpreter {
     private:
         State state;
     public:
-        Interpreter(const std::vector<wfg::lang::Value*>& input)
-            : state(input)
-        {}
+        Interpreter();
+        ~Interpreter();
     };
 };
 };

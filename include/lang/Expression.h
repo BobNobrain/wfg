@@ -4,8 +4,7 @@
 
 namespace wfg {
 namespace lang {
-    class Expression
-    {
+    class Expression {
     public:
         Expression() {}
 

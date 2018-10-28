@@ -8,15 +8,15 @@ using namespace wfg::lang;
 
 namespace wfg {
 namespace interpreter {
+    typedef std::map<std::string, Value*> Memory;
+    typedef std::vector<Value*> Output;
+
     class State {
     private:
-        std::map<std::string, Value*> memory;
-        std::vector<Value*> input;
-        std::vector<Value*> output;
+        Memory memory;
+        Output output;
     public:
-        State(const std::vector<Value*>& _input)
-            : input(_input)
-        {}
+        State();
         ~State();
 
         Value* fromMemory(const std::string& identifier);

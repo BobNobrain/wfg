@@ -6,6 +6,7 @@ namespace lang {
     class Command {
     public:
         Command() {}
+        virtual ~Command() {}
 
         virtual void execute(interpreter::State& state) = 0;
     };
