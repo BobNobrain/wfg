@@ -1,4 +1,4 @@
-#include "lang/AssignmentCommand.h"
+#include "lang/commands/AssignmentCommand.h"
 
 namespace wfg {
 namespace lang {
