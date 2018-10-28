@@ -3,6 +3,8 @@
 #include "FileLoader.h"
 #include "help.cpp"
 
+using namespace wfg;
+
 int main(int argc, char const *argv[])
 {
     ArgParser parser(argc, argv);
@@ -21,7 +23,6 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    // TODO
-    wfg::FileLoader loader;
-    return loader.start("../example.wfg");
+    FileLoader loader;
+    return loader.start(parser.getArgument(0));
 }

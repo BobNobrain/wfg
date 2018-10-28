@@ -9,9 +9,17 @@ namespace wfg {
     FileLoader::~FileLoader() {}
 
     int FileLoader::start(const std::string& filename) {
+        std::cout << "Opening " << filename << std::endl;
+        // TODO
+        file_content = "var := 1; output var;";
+
+        return run();
+    }
+
+    int FileLoader::run() {
         parser::Parser p;
         try {
-            p.tokenize("var := 1; output var;");
+            p.tokenize(file_content);
         } catch (const std::runtime_error& err) {
             std::cerr << "Parsing error: " << err.what() << std::endl;
             return 50;
