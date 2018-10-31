@@ -1,161 +1,163 @@
-#include <cctype>
 #include <string>
 #include <exception>
 #include "parser/Parser.h"
 #include "exception/ParserException.h"
+#include "parser/Token.h"
 
+#include "lang/commands/OutputCommand.h"
+#include "lang/commands/AssignmentCommand.h"
+
+#include "lang/expressions/VariableExpression.h"
+#include "lang/expressions/ConstantExpression.h"
+
+// #include <iostream>
+
+using namespace wfg::lang;
 
 namespace wfg {
 namespace parser {
-    Parser::Parser() {}
+    Parser::Parser() { }
+    Parser::~Parser() { }
 
-    void Parser::flushBuffer() {
-        std::string buffer_content = buffer.str();
-        buffer.str(std::string());
-        switch (state) {
-            case Parser::STATE_IDENTIFIER:
-                handleIdentifier(buffer_content);
+    std::vector<Command*> Parser::ast(const std::vector<Token*>& tokens) {
+        std::vector<Command*> result;
+
+        iter_t it = tokens.cbegin();
+        const iter_t end = tokens.end();
+        while (it != end) {
+            Command* next = readCommand(it, end);
+            result.push_back(next);
+        }
+
+        return result;
+    }
+
+    Command* Parser::readCommand(iter_t& pos, const iter_t& end) {
+        Token* t = *pos;
+        Command* result = 0;
+        switch (t->type()) {
+            case Token::TYPE_OUTPUT:
+                result = readOutputCmd(pos, end);
                 break;
 
-            case Parser::STATE_NUMBER:
-                handleNumber(buffer_content);
+            case Token::TYPE_IDENTIFIER:
+                result = readAssignCmd(pos, end);
                 break;
 
-            case Parser::STATE_PUNCTUATION:
-                handleOperators(buffer_content);
+            case Token::TYPE_IF:
+                throw std::runtime_error("If has not been implemented yet");
+                break;
+
+            case Token::TYPE_WHILE:
+                throw std::runtime_error("While has not been implemented yet");
                 break;
 
             default:
-                throw std::runtime_error("Cannot flush buffer: incorrect state");
+                throw std::runtime_error("Unexpected token");
         }
+        return result;
     }
 
-    void Parser::handleNumber(const std::string& buffer_content) {
-        float num = std::stof(buffer_content);
-        tokens.push_back(NumberToken(num));
+    Command* Parser::readOutputCmd(iter_t& pos, const iter_t& end) {
+        // std::cout << "readOutputCmd" << std::endl;
+        ++pos;
+
+        iter_t expr_end = find(pos, end, Token::TYPE_SEMICOLON);
+
+        Expression* expr = readExpression(pos, expr_end);
+
+        // skip semicolon
+        ++pos;
+        return new OutputCommand(expr);
     }
 
-    void Parser::handleOperators(const std::string& buffer_content) {
-        // Here we shall check, if we have some operators in one token: (-1), for example
-        OperatorToken token(buffer_content);
-        if (token.type() != Token::TYPE_UNKNOWN) {
-            // everything is ok
-            tokens.push_back(token);
-            return;
+    Command* Parser::readAssignCmd(iter_t& pos, const iter_t& end) {
+        // std::cout << "readAssignCmd" << std::endl;
+        Token* id = *pos;
+        IdentifierToken* casted = dynamic_cast<IdentifierToken*>(id);
+        std::string identifier = casted->identifier;
+
+        ++pos; // skip identifier
+        Token* assign_operator = *pos;
+        if (assign_operator->type() != Token::TYPE_ASSIGN) {
+            throw std::runtime_error("Expected command operator");
         }
-        // unknown operator, we heed to find a way
-        // to split down buffer_content into several operators
-        // TODO!
-        tokens.push_back(token);
+        ++pos; // skip :=
+
+        iter_t expr_end = find(pos, end, Token::TYPE_SEMICOLON);
+        Expression* expr = readExpression(pos, expr_end);
+
+        ++pos; // skip ;
+
+        return new AssignmentCommand(identifier, expr);
     }
 
-    void Parser::handleIdentifier(const std::string& buffer_content) {
-        if (buffer_content == "true") {
-            tokens.push_back(BoolToken(true));
-            return;
-        }
-        if (buffer_content == "false") {
-            tokens.push_back(BoolToken(false));
-            return;
-        }
-        KeywordToken kw(buffer_content);
-        if (kw.type() != Token::TYPE_UNKNOWN) {
-            tokens.push_back(kw);
-            return;
-        }
-        tokens.push_back(IdentifierToken(buffer_content));
-    }
-
-    void Parser::tokenize(std::string fileContent) {
-        int col = 0;
-        int ln = 0;
-        for (std::string::iterator it = fileContent.begin(); it != fileContent.end(); ++it) {
-            char c = *it;
-            unsigned char uc = static_cast<unsigned char>(c);
-
-            switch (state)
-            {
-                case Parser::STATE_SPACE:
-                    if (isalpha(uc)) {
-                        state = Parser::STATE_IDENTIFIER;
-                        buffer << c;
-                    } else if (isdigit(uc)) {
-                        state = Parser::STATE_NUMBER;
-                        buffer << c;
-                    } else if (ispunct(uc)) {
-                        state = Parser::STATE_PUNCTUATION;
-                        buffer << c;
-                    } else if (isspace(uc)) {
-                        // skip
-                    } else {
-                        throw ParserException(col, ln, "valid char", std::to_string(c));
-                    }
+    Expression* Parser::readExpression(iter_t& pos, const iter_t& end) {
+        // std::cout << "readExpr" << std::endl;
+        Token* t = *pos;
+        Expression* result = 0;
+        while (pos != end) {
+            switch (t->type()) {
+                case Token::TYPE_NUMBER:
+                    result = readNumberExpr(pos, end);
                     break;
 
-                case Parser::STATE_IDENTIFIER:
-                    if (isalnum(uc)) {
-                        buffer << c;
-                    } else if (ispunct(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_PUNCTUATION;
-                        buffer << c;
-                    } else if (isspace(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_SPACE;
-                    } else {
-                        throw ParserException(col, ln, "valid char", std::to_string(c));
-                    }
+                case Token::TYPE_BOOL:
+                    result = readBoolExpr(pos, end);
                     break;
 
-                case Parser::STATE_NUMBER:
-                    if (isdigit(uc)) {
-                        buffer << c;
-                    } else if (isspace(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_SPACE;
-                    } else if (ispunct(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_PUNCTUATION;
-                        buffer << c;
-                    } else {
-                        throw ParserException(col, ln, "number, operator or space", std::to_string(c));
-                    }
-                    break;
-
-                case Parser::STATE_PUNCTUATION:
-                    if (ispunct(uc)) {
-                        buffer << c;
-                    } else if (isspace(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_SPACE;
-                    } else if (isdigit(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_NUMBER;
-                        buffer << c;
-                    } else if (isalpha(uc)) {
-                        flushBuffer();
-                        state = Parser::STATE_IDENTIFIER;
-                        buffer << c;
-                    } else {
-                        throw ParserException(col, ln, "valid char", std::to_string(c));
-                    }
+                case Token::TYPE_IDENTIFIER:
+                    result = readIdExpr(pos, end);
                     break;
 
                 default:
-                    throw std::runtime_error("Invalid parser state");
-                    break;
-            }
-
-            ++col;
-            if (c == '\n') {
-                col = 0;
-                ++ln;
+                    // std::cerr << (int) t->type() << std::endl;
+                    throw std::runtime_error("Expected expression");
             }
         }
+        return result;
     }
 
-    std::vector<lang::Command*> Parser::ast() {
-        return std::vector<lang::Command*>();
+    Expression* Parser::readBoolExpr(iter_t& pos, const iter_t& end) {
+        // std::cout << "readBool" << std::endl;
+        Token* b = *pos;
+        BoolToken* casted = dynamic_cast<BoolToken*>(b);
+        ++pos;
+        return ConstantExpression::fromBoolean(casted->value);
+    }
+
+    Expression* Parser::readNumberExpr(iter_t& pos, const iter_t& end) {
+        // std::cout << "readNum" << std::endl;
+        Token* n = *pos;
+        NumberToken* casted = dynamic_cast<NumberToken*>(n);
+        ++pos;
+        return ConstantExpression::fromNumber(casted->number);
+    }
+
+    Expression* Parser::readIdExpr(iter_t& pos, const iter_t& end) {
+        // std::cout << "readId" << std::endl;
+        Token* id = *pos;
+        IdentifierToken* casted = dynamic_cast<IdentifierToken*>(id);
+        ++pos;
+        return new VariableExpression(casted->identifier);
+    }
+
+
+    Parser::iter_t Parser::find(iter_t& pos, const iter_t& end, char token_type) {
+        iter_t result = pos;
+        while (result != end) {
+            Token* t = *result;
+            if (t->type() == token_type) {
+                return result;
+            }
+            ++result;
+        }
+        throwEof();
+        return result;
+    }
+
+    void Parser::throwEof() {
+        throw std::runtime_error("Unexpected end of input");
     }
 };
 };

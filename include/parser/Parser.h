@@ -1,33 +1,32 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <sstream>
-#include "parser/Token.h"
+#include "parser/Tokenizer.h"
 #include "lang/Command.h"
+#include "lang/Expression.h"
 
 namespace wfg {
 namespace parser {
-
     class Parser {
+        using iter_t = std::vector<Token*>::const_iterator;
     private:
-        std::vector<Token> tokens;
-        std::ostringstream buffer;
-        char state;
+        Command* readCommand(iter_t& pos, const iter_t& end);
+        Command* readOutputCmd(iter_t& pos, const iter_t& end);
+        Command* readAssignCmd(iter_t& pos, const iter_t& end);
 
-        static const char STATE_IDENTIFIER      = 0;
-        static const char STATE_SPACE           = 1;
-        static const char STATE_NUMBER          = 2;
-        static const char STATE_PUNCTUATION     = 3;
+        Expression* readExpression(iter_t& pos, const iter_t& end);
+        Expression* readNumberExpr(iter_t& pos, const iter_t& end);
+        Expression* readBoolExpr(iter_t& pos, const iter_t& end);
+        Expression* readIdExpr(iter_t& pos, const iter_t& end);
 
-        void flushBuffer();
-        void handleOperators(const std::string& buffer_content);
-        void handleNumber(const std::string& buffer_content);
-        void handleIdentifier(const std::string& buffer_content);
+        iter_t find(iter_t& from, const iter_t& end, char token_type);
+        // void ff(iter_t& from, iter_t& result);
+
+        void throwEof();
     public:
         Parser();
+        virtual ~Parser();
 
-        void tokenize(std::string fileContent);
-        std::vector<lang::Command*> ast();
+        std::vector<lang::Command*> ast(const std::vector<Token*>& tokens);
     };
 };
 };

@@ -14,8 +14,8 @@ namespace parser {
         virtual bool isLiteral();
         virtual bool isOperator();
 
-        static const char TYPE_UNKNOWN = 0x00;
-        static const char TYPE_IDENTIFIER = 0x01;
+        static const char TYPE_UNKNOWN       = 0x00;
+        static const char TYPE_IDENTIFIER    = 0x01;
 
         // keywords
         static const char TYPE_READ          = 0xA0;

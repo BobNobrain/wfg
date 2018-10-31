@@ -3,7 +3,10 @@ SRC_DIR = $(PROJECT_ROOT)/src
 BIN_DIR = $(PROJECT_ROOT)/bin
 INC_DIR = $(PROJECT_ROOT)/include
 OBJ_DIR = $(PROJECT_ROOT)/obj
-CLASSES_SUBDIRS = exception interpreter lang parser
+CLASSES_SUBDIRS = exception \
+	interpreter \
+	lang lang/values lang/expressions lang/commands \
+	parser
 
 TARGET = $(BIN_DIR)/wfg
 
@@ -13,7 +16,10 @@ OBJ_CPP = $(SRC_CPP:.cpp=.o)
 CLASSES_CPP = ArgParser FileLoader \
 	$(addprefix interpreter/,Interpreter State) \
 	$(addprefix lang/,Command Expression Value) \
-	$(addprefix parser/,Parser Token) \
+	$(addprefix lang/commands/,AssignmentCommand OutputCommand) \
+	$(addprefix lang/expressions/,ConstantExpression VariableExpression) \
+	$(addprefix lang/values/,BooleanValue NumberValue) \
+	$(addprefix parser/,Token Tokenizer Parser) \
 	$(addprefix exception/,ParserException)
 
 CLASSES_OBJECTS = $(addsuffix .o,$(CLASSES_CPP))
@@ -41,18 +47,20 @@ program: $(TARGET)
 
 $(TARGET): $(addprefix $(OBJ_DIR)/,$(OBJ_CPP)) $(addprefix $(OBJ_DIR)/,$(CLASSES_OBJECTS))
 	@echo Building $(PROGRAM_VERSION)
-	g++ $(LFLAGS) -o $(TARGET) $^
+	@g++ $(LFLAGS) -o $(TARGET) $^
 
 define createclassrule
 $(OBJ_DIR)/$(addsuffix .o,$(1)): $(SRC_DIR)/$(addsuffix .cpp,$(1)) $(INC_DIR)/$(addsuffix .h,$(1))
-	g++ $$(CFLAGS) -c $$< -o $$@
+	@echo Compiling $(1)
+	@g++ $$(CFLAGS) -c $$< -o $$@
 endef
 
 $(foreach classfile,$(CLASSES_CPP),$(eval $(call createclassrule,$(classfile))))
 
 define createcpprule
 $(OBJ_DIR)/$(1): $(SRC_DIR)/$(1:.o=.cpp)
-	g++ $$(CFLAGS) -c $$< -o $$@
+	@echo Compiling $(1:.o=.cpp)
+	@g++ $$(CFLAGS) -c $$< -o $$@
 endef
 
 $(foreach objfile,$(OBJ_CPP),$(eval $(call createcpprule,$(objfile))))

@@ -8,9 +8,8 @@ namespace lang {
         Value();
         virtual ~Value();
 
-        virtual void* eval() = 0;
-        virtual int type() = 0;
-        virtual std::string toString() = 0;
+        virtual int type() const = 0;
+        virtual std::string toString() const = 0;
 
         static const int TYPE_STRING = 1;
         static const int TYPE_NUMBER = 2;

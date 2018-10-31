@@ -1,8 +1,10 @@
 #include <iostream>
 #include <exception>
 #include "FileLoader.h"
+#include "parser/Tokenizer.h"
 #include "parser/Parser.h"
 #include "exception/ParserException.h"
+#include "interpreter/Interpreter.h"
 
 namespace wfg {
     FileLoader::FileLoader() {}
@@ -17,9 +19,21 @@ namespace wfg {
     }
 
     int FileLoader::run() {
+        parser::Tokenizer t;
         parser::Parser p;
+        interpreter::Interpreter intprt;
         try {
-            p.tokenize(file_content);
+            t.tokenize(file_content);
+            // std::cout << "Tokenized " << t.tokens.size() << std::endl;
+            auto commands = p.ast(t.tokens);
+            // std::cout << "Parsed " << commands.size() << std::endl;
+            intprt.run(commands);
+            // std::cout << "Run" << std::endl;
+
+            for (auto it = commands.begin(); it != commands.end(); ++it) {
+                Command* next = *it;
+                delete next;
+            }
         } catch (const std::runtime_error& err) {
             std::cerr << "Parsing error: " << err.what() << std::endl;
             return 50;
